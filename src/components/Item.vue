@@ -7,7 +7,7 @@
         name="Item"
         placeholder="Item"
         v-model="itemBillProps.Item"
-      />
+      >
       <datalist id="options">
         <option v-for="product in products" :key="product.id">{{ product.title }}</option>
       </datalist>
@@ -74,7 +74,7 @@ export default {
     const products = ref([])
     const getProducts = async() =>{
         const res = await axios.get(`http://localhost:4000/user/products`);
-        products.value = res.data.data;
+        products.value = res.data;
         console.log(products.value);
     }
    

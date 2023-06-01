@@ -50,7 +50,7 @@
     <div class="table py1">
       <div class="table--heading3">
         <p>#</p>
-        <p>Description</p>
+        <p>Item</p>
         <p>Price</p>
         <p>Qty</p>
         <p>Amount</p>
@@ -78,11 +78,13 @@
             <span> ${{ subtotal }}</span>
           </div>
           <div class="invoice__subtotal--item1">
-            <p>Tax({{ tax * 100 }}%)</p>
+            <p>Tax({{ (tax * 100).toPrecision(3) }}%)</p>
             <span>${{ tax * subtotal }}</span>
           </div>
           <div class="invoice__subtotal--item1">
-            <p>Payment date: {{ settingFeature.paymentDate }}</p>
+            <p v-if="settingFeature.paymentDate != '' && isChecked[0]">
+              Payment date: {{ settingFeature.paymentDate }}
+            </p>
           </div>
         </div>
       </div>
@@ -105,15 +107,16 @@
       </div>
     </div>
     <div class="setting">
-      <h3 style="text-align: center">Feature</h3>
-      <div class="setting__1">
+      <h3 style="font-size:36px;text-align: center;">Feature</h3>
+      <div class="setting__
+    MessageModal1">
         <p>Payment date</p>
         <label class="switch">
           <input type="checkbox" v-model="isChecked[0]" />
           <span class="slider"></span>
         </label>
         <div class="settingTextInput" v-if="isChecked[0]">
-          <input  v-model="settingFeature.paymentDate" type="date"/>
+          <input v-model="settingFeature.paymentDate" type="date" />
         </div>
       </div>
       <div class="setting__2">
@@ -123,18 +126,22 @@
           <span class="slider"></span>
         </label>
         <div class="settingTextInput" v-if="isChecked[1]">
-          <input type="number" v-model="settingFeature.soTienThanhToan" placeholder="Số tiền thanh toán" />
+          <input
+            type="number"
+            v-model="settingFeature.soTienThanhToan"
+            placeholder="Số tiền thanh toán"
+          />
         </div>
       </div>
       <div class="setting__3">
-        <p>Download</p>
-        <button class="btn__setting">
-          <i class="fa-solid fa-download" style="color: #ffffff"></i>
-        </button>
+        <p>Tax</p>
+        <div class="settingNumberInput">
+          <input type="number" v-model="tax" min="0" max="1" step="0.01" />
+        </div>
       </div>
       <div class="setting__4">
         <p>Send to customer</p>
-        <button class="btn__setting">
+        <button @click="sendPdf()" class="btn__setting">
           <i class="fa-solid fa-envelope" style="color: #ffffff"></i>
         </button>
       </div>
@@ -143,56 +150,108 @@
       <i class="fa-solid fa-gear fa-rotate-90" style="color: #fff"></i>
     </button>
   </div>
+  <MessagePopup @hide-item="isShowedModal = false" v-if="isShowedModal" :messageProps="MessagePopup" />
 </template>
 
 <script>
 import { computed, ref } from "vue";
+import MessagePopup from "./messagePopup.vue";
 export default {
-  name: "invoiceTemplate",
-  props: ["customerProps", "companyProps", "itemBillProps"],
-  setup(props, context) {
-    const subtotal = computed(() => {
-      let subTotal = 0;
-      props.itemBillProps.forEach((itemBill) => {
-        subTotal += itemBill.amount();
-      });
-      return subTotal;
-    });
-    const settingFeature = ref({
-      paymentDate: "",
-      soTienThanhToan: 0,
-    });
-    const checkboxs = document.querySelectorAll("input[type=checkbox]");
-    checkboxs.forEach((checkbox, index) => {
-        console.log(index);      
-      checkbox.addEventListener("change", () => {
-        
-        // isChecked[index] = !isChecked[index];
-        // if (!isChecked[index]) {
-        //   if (index == 0) settingFeature.value.paymentDate = "";
-        //   else settingFeature.value.soTienThanhToan = 0;
-        // }
-      });
-    });
-    const tax = ref(0.13);
-    const isChecked = ref([false, false]);
-    const showSetting = () => {
-      let setting = document.getElementsByClassName("setting")[0];
-      // console.log(setting[0]);
-      if (setting.style.opacity == 0) setting.style.opacity = 1;
-      else setting.style.opacity = 0;
-    };
-    return {
-      subtotal,
-      tax,
-      showSetting,
-      settingFeature,
-      isChecked,
-    };
-  },
+    name: "invoiceTemplate",
+    props: ["customerProps", "companyProps", "itemBillProps"],
+    setup(props, context) {
+        const subtotal = computed(() => {
+            let subTotal = 0;
+            props.itemBillProps.forEach((itemBill) => {
+                subTotal += itemBill.amount();
+            });
+            return subTotal;
+        });
+        const settingFeature = ref({
+            paymentDate: "",
+            soTienThanhToan: 0,
+        });
+        // const checkboxs = document.querySelectorAll("input[type=checkbox]");
+        // checkboxs.forEach((checkbox, index) => {
+        //     console.log(index);
+        //   checkbox.addEventListener("change", () => {
+        //     // isChecked[index] = !isChecked[index];
+        //     // if (!isChecked[index]) {
+        //     //   if (index == 0) settingFeature.value.paymentDate = "";
+        //     //   else settingFeature.value.soTienThanhToan = 0;
+        //     // }
+        //   });
+        // });
+        const tax = ref(0.13);
+        const isShowedModal = ref(false);
+        const isChecked = ref([false, false]);
+        const MessagePopup = ref("");
+        const showSetting = () => {
+            let setting = document.getElementsByClassName("setting")[0];
+            // console.log(setting[0]);
+            if (setting.style.opacity == 0)
+                setting.style.opacity = 1;
+            else
+                setting.style.opacity = 0;
+        };
+        const sendPdf = () => {
+            const invoiceData = {
+                customer: {
+                    name: props.customerProps.name,
+                    email: props.customerProps.email,
+                    Invoicedate: props.customerProps.date,
+                    address: props.customerProps.address,
+                    city: props.customerProps.city,
+                    country: props.customerProps.country,
+                    state: props.customerProps.state,
+                    zipcode: props.customerProps.zipCode,
+                    invoiceNumber: props.customerProps.invoiceNumber
+                },
+                company: {
+                    name: props.companyProps.name,
+                    city: props.companyProps.city,
+                    zipCode: props.companyProps.zipCode,
+                    country: props.companyProps.country,
+                    state: props.companyProps.state,
+                },
+                itemBill: props.itemBillProps,
+                others:
+                {
+                  subToTal: subtotal.value,
+                  tax: tax.value,
+                  paymentDate: settingFeature.value.paymentDate,
+                  imgURL: "http://localhost:5173/src/assets/logo.png"
+                }
+            };
+            fetch("http://localhost:4000/invoices/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(invoiceData),
+            }).then((response) => response.text())
+              .then((text) => {isShowedModal.value = true;
+                MessagePopup.value = text;
+              console.log(MessagePopup)})
+              .catch((error) => console.error(error));
+        };
+        return {
+            subtotal,
+            tax,
+            showSetting,
+            settingFeature,
+            isChecked,
+            sendPdf,
+            isShowedModal,
+            MessagePopup
+        };
+    },
+    components: { MessagePopup }
 };
 </script>
+<style>
 
+</style>
 <style scoped>
 body {
   background-color: #6c5ce7;
@@ -208,6 +267,36 @@ body {
 /* *{
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 } */
+.checkbtn {
+  display: none;
+  font-size: 30px;
+  color: white;
+  float: right;
+  cursor: pointer;
+  line-height: 80px;
+  margin-right: 40px;
+}
+
+#check {
+  display: none;
+}
+.logo {
+  padding-top: 40px;
+  padding-left: 25px;
+  height: 60px;
+  padding-bottom: 15px;
+}
+
+table {
+  background: #f1f1f1;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.invoice {
+  background: white;
+  color: black;
+}
 .logo {
   /* margin-top: 15px; */
   margin-left: 20px;
@@ -227,20 +316,26 @@ body {
   font-weight: bold;
   background-color: #f1f1f1;
 }
-.setting {
-  background-color: #e4e0ff;
+div.setting {
+  background-color: #926c4d;
+  color:#a3e452;
+  background-image: url('../assets/24e75930a8f463192dadb16fe58bdf29--minecraft-earth-minecraft-blocks.jpg');
+  background-size: cover;
   user-select: none;
-  font-size: 18px;
+  font-size: 22px;
+  font-weight: 600;
   height: 400px;
   width: 300px;
   position: fixed;
   bottom: 135px;
   right: 60px;
-  border-radius: 12px;
+  border-radius: 5px;
   transition: opacity 0.2s ease;
-  box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.02), 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.2);
   /* visibility: hidden; */
   opacity: 0;
+  font-family: Minecraft !important; 
+  border: 3px solid black;
   display: grid;
   row-gap: 10px;
 }
@@ -257,6 +352,9 @@ body {
 }
 .invoice__header--item h2 {
   margin: 20px 0;
+}
+.settingNumberInput {
+  width: 70%;
 }
 .table--heading3 {
   display: grid;
@@ -370,19 +468,29 @@ button#setting:hover {
   padding: 15px 20px;
   cursor: pointer;
 }
-input[type="date"], input[type="number"]{
+.btn__setting:hover{
+  box-shadow: 0.4rem 0.4rem 0 #000;
+  transform: translate(-0.4rem, -0.4rem);
+}
+.btn__setting:active{
+  box-shadow: 0 0 0 black;
+  transform: translate(0, 0);
+}
+input[type="date"],
+input[type="number"] {
   height: 34px;
   width: 100%;
 }
-.settingTextInput{
-  display:inline-block;
+.settingTextInput {
+  display: inline-block;
   margin-left: 80px;
   margin-top: 10px;
   width: 50%;
 }
 @media print {
-   .setting, button#setting{
-      visibility: hidden;
-   }
+  .setting,
+  button#setting {
+    visibility: hidden;
+  }
 }
 </style>

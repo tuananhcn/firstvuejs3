@@ -277,7 +277,20 @@
       <h3>Enter customer and invoice information</h3>
       <section>
         <span>STEP 2 OF 3</span>
-        <input id="CustomerName" type="text" list="Customer" v-model="customer.name" placeholder="Customer Name"/>
+        <div id="xmas-popup" class="popup" href="#">
+	            <div class="popup-content">
+	                <input type="text" name="name" placeholder="Name">
+                  <input type="text" name="email" placeholder="Email">
+                  <input type="text" name="country" placeholder="Country">
+                  <input type="text" name="city" placeholder="City">
+                  <button style="margin-left: 90%;" type="button">Add</button>
+	                <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i class="fa-solid fa-xmark"></i></a>
+	            </div>
+	        </div>
+          <div style="position: relative;">
+            <input id="CustomerName" type="text" list="Customer" v-model="customer.name" placeholder="Customer Name"/>
+            <span @click="openPopup(2)" class="add">+</span>
+          </div>
         <datalist id="Customer">
           <option v-for="Customer in customerFromShopify" :key="Customer.id">
             {{ Customer.first_name + " " + Customer.last_name }}
@@ -569,6 +582,14 @@
       <h3>Enter the items you wish to bill</h3>
       <section>
         <span>STEP 3 OF 3</span>
+        <div id="xmas-popup" class="popup" href="#">
+	            <div class="popup-content">
+	                <input type="text" name="item" placeholder="Item">
+                  <input type="text" name="email" placeholder="Description">
+                  <button style="margin-left: 90%;" type="button">Add</button>
+	                <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i class="fa-solid fa-xmark"></i></a>
+	            </div>
+	        </div>
         <Item
           v-for="itemBill in itemBills"
           :key="itemBill"
@@ -601,8 +622,8 @@ export default {
   name: "Phase1",
   components: { Item, InvoiceTemplate },
   setup() {
-    const activePhase = ref(1);
-    const itemBills = ref([
+    const activePhase = ref(1); // xac dinh phase hien tai
+    const itemBills = ref([ // Item data phase 3
       {
         id: uuidv4(),
         Item: "",
@@ -614,7 +635,7 @@ export default {
         }
       },
     ]);
-    const customer = ref({
+    const customer = ref({ // Customer data phase 2
       name: "",
       email: "",
       invoiceNumber: "",
@@ -625,26 +646,37 @@ export default {
       country: "",
       state:"",
     });
-    const company = ref({
+    const company = ref({ // Company data phase 1
       name: "",
       city: "",
       zipCode: "",
       country: "",
       state: "",
     });
-    const customerFromShopify = ref([]);
-    const getAllCustomers = async () => {
+    const customerFromShopify = ref([]); // list customer lay tu shopify
+    const getAllCustomers = async () => { // get customer datalist step 2
       const resp = await axios.get(`http://localhost:4000/user/customers`);
       customerFromShopify.value = resp.data.data;
       console.log(resp.data);
     };
     getAllCustomers();
-    const deleteItem = (id) => {
+    // const addButton = document.querySelectorAll('.add')[0]; // Click + hien ra pop up
+    // addButton.forEach((btn,index) => {
+      // addButton.addEventListener('click', () => {
+      //   console.log("adu");
+        // const popUp = document.getElementsByClassName('popup')[index];
+        // popup.style.display = "block";
+      // })
+    // });
+    const openPopup = (step) => {
+      document.getElementsByClassName('popup')[step-2].style.display = "block";
+    }
+    const deleteItem = (id) => { // Xoa item step 3
       itemBills.value = itemBills.value.filter(
         (itemBill) => itemBill.id !== id
       );
     };
-    const additem = () => {
+    const additem = () => { // Them item step 3
       itemBills.value.push({
         id: uuidv4(),
         Item: "",
@@ -663,28 +695,70 @@ export default {
     //   });
     //   return subTotal;
     // })
-    const goToStep = (step) => {
+    const goToStep = (step) => { // Chuyen? den step -> ?
       activePhase.value = step;
     };
-    const sendData = async () => {
-      const res = await axios.post("", data);
-    };
+    // const sendData = async () => {
+    //   const res = await axios.post("", data);
+    // };
     return {
       itemBills,
       deleteItem,
       additem,
       goToStep,
       activePhase,
-      sendData,
       customer,
       company,
       customerFromShopify,
+      openPopup
     };
   },
 }
 </script>
 
 <style scoped>
+.add {
+  position: absolute;
+  top: 35%;
+  right: 10px;
+}
+.add:hover{
+  cursor: pointer;
+  user-select: none;
+}
+.close {
+ position: absolute;
+ top: 5px;
+ right: 5px;
+ border-radius: 50%;
+ /* background: #222; */
+ /* border: 3px solid #fff; */
+ color: #fff;
+ text-decoration: none;
+ line-height: 0;
+ padding: 9px 0 11px;
+ width: 20px;
+ text-align: center;
+}
+#xmas-popup .popup-content{
+ width: 600px;
+ /* height: 600px; */
+ background: #bbb;
+ margin: 100px auto;
+ position: relative;
+ border: 5px solid #fff;
+ padding: 30px;
+}
+.popup {
+ position: fixed;
+ width: 100%;
+ height: 100%;
+ top: 0;
+ left: 0;
+ background: rgba(0,0,0,0.6);
+ display: none;
+ z-index: 1;
+}
 input {
   width: 100%;
   background: #fff;
