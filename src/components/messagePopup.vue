@@ -6,7 +6,7 @@
     </div>
     <!-- <div v-else-if="messageProps == ''">
     </div> -->
-    <div class="alert" v-else>
+    <div class="alert" v-else-if = "messageProps !== ''">
       <i class="closebtn fa-solid fa-xmark" @click="Hide()"></i>
       <strong>{{ messageProps }}</strong>
     </div>

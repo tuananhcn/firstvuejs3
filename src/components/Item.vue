@@ -73,7 +73,7 @@ export default {
     // const Quantity = ref(0); 
     const products = ref([])
     const getProducts = async() =>{
-        const res = await axios.get(`http://localhost:4000/user/products`);
+        const res = await axios.get(`https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/products?id=gumbee-14526`,{headers:{'ngrok-skip-browser-warning':"any"}});
         products.value = res.data;
         console.log(products.value);
     }
@@ -134,6 +134,10 @@ input {
 .removebutton {
   width: 25%;
   align-self: center;
+}
+[list]::-webkit-calendar-picker-indicator {
+  display: none; 
+  opacity: 0;
 }
 .remove {
   border: none;

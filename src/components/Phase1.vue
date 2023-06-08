@@ -4,25 +4,9 @@
       <h3>Enter your company information</h3>
       <section>
         <span>STEP 1 OF 3</span>
-        <input
-          type="text"
-          name="CompName"
-          v-model="company.name"
-          placeholder="Company name"
-          required="required"
-        />
-        <input
-          type="text"
-          v-model="company.city"
-          placeholder="City"
-          required="required"
-        />
-        <input
-          type="text"
-          v-model="company.zipCode"
-          placeholder="Zip/postal code"
-          required="required"
-        />
+        <input type="text" name="CompName" v-model="company.name" placeholder="Company name" required="required" />
+        <input type="text" v-model="company.city" placeholder="City" required="required" />
+        <input type="text" v-model="company.zipCode" placeholder="Zip/postal code" required="required" />
         <select v-model="company.country" name="company[country]">
           <option value="" disabled selected>Country/Region</option>
           <option value="AF">Afghanistan</option>
@@ -264,89 +248,61 @@
           <option value="AX">Åland Islands</option>
         </select>
         <input type="text" v-model="company.state" placeholder="State/Province">
-        <button
-          type="button"
-          style="margin: 0 0 0 auto; display: block"
-          @click.prevent="goToStep(2)"
-        >
+        <button type="button" style="margin: 0 0 0 auto; display: block" @click.prevent="goToStep(2)">
           Next
         </button>
       </section>
     </div>
-    <div class="section2" v-if="activePhase == 2" >
+    <div class="section2" v-if="activePhase == 2">
       <h3>Enter customer and invoice information</h3>
       <section>
         <span>STEP 2 OF 3</span>
         <div id="xmas-popup" class="popup" href="#">
-	            <div class="popup-content">
-	                <input type="text" name="name" placeholder="Name">
-                  <input type="text" name="email" placeholder="Email">
-                  <input type="text" name="country" placeholder="Country">
-                  <input type="text" name="city" placeholder="City">
-                  <button style="margin-left: 90%;" type="button">Add</button>
-	                <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i class="fa-solid fa-xmark"></i></a>
-	            </div>
-	        </div>
-          <div style="position: relative;">
-            <input id="CustomerName" type="text" list="Customer" v-model="customer.name" placeholder="Customer Name"/>
-            <span @click="openPopup(2)" class="add">+</span>
+          <div class="popup-content">
+            <input type="text" name="name" placeholder="Name" v-model="customerData.name">
+            <input type="text" name="email" placeholder="Email" v-model="customerData.email">
+            <input type="text" name="country" placeholder="Country" v-model="customerData.country">
+            <input type="text" name="city" placeholder="City" v-model="customerData.city">
+            <button @click="addCustomer" onclick="this.parentElement.parentElement.style.display='none'"
+              style="margin-left: 90%;" type="button">Add</button>
+            <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i
+                class="fa-solid fa-xmark"></i></a>
           </div>
-        <datalist id="Customer">
-          <option v-for="Customer in customerFromShopify" :key="Customer.id">
-            {{ Customer.first_name + " " + Customer.last_name }}
-          </option>
-        </datalist>
-        <input
-          type="text"
-          list="CustomerEmail"
-          v-model="customer.email"
-          name=""
-          placeholder="Your customer's email"
-        />
+        </div>
+        <div style="position: relative;">
+          <input type="text" list="Customer" v-model="customer.name" placeholder="Customer Name" />
+          <datalist id="Customer">
+            <option v-for="Customer in customerFromShopify" :key="Customer.id">
+              {{ Customer.name }}
+            </option>
+          </datalist>
+          <span @click="openPopup(2)" class="add">+</span>
+        </div>
+        <input @input="fillInput" class="customerEmail" type="text" list="CustomerEmail" v-model="customer.email" name="customerEmail" placeholder="Your customer's email" />
         <datalist id="CustomerEmail">
           <option v-for="Customer in customerFromShopify" :key="Customer.id">{{ Customer.email }}</option>
         </datalist>
-        <input
-          type="text"
-          v-model="customer.invoiceNumber"
-          name=""
-          placeholder="Invoice number"
-        />
-        <input
-          type="text"
-          v-model="customer.address"
-          name=""
-          placeholder="Customer's address"
-        />
-        <input
-          type="date"
-          v-model="customer.date"
-          name=""
-          placeholder="Invoice date"
-        />
+        <input type="text" v-model="customer.invoiceNumber" name="" placeholder="Invoice number" />
+        <input type="text" v-model="customer.address" name="" placeholder="Customer's address" />
+        <input type="date" v-model="customer.date" name="" placeholder="Invoice date" />
         <input type="text" v-model="customer.city" name="" placeholder="City" />
-        <input
-          type="text"
-          v-model="customer.zipCode"
-          name=""
-          placeholder="Zip/postal code"
-        />
-        <select v-model="customer.country" name="company[country]">
+        <input type="text" v-model="customer.zipCode" name="" placeholder="Zip/postal code" />
+        <select :value="customer.country" name="company[country]">
           <option value="" disabled selected>Country/Region</option>
-          <option value="AF">Afghanistan</option>
-          <option value="AL">Albania</option>
-          <option value="DZ">Algeria</option>
-          <option value="AD">Andorra</option>
-          <option value="AO">Angola</option>
-          <option value="AI">Anguilla</option>
+          <option value="Afghanistan">Afghanistan</option>
+          <option value="Albania">Albania</option>
+          <option value="Algeria">Algeria</option>
+          <option value="Andorra">Andorra</option>
+          <option value="Angola">Angola</option>
+          <option value="Anguilla">Anguilla</option>
           <option value="AG">Antigua & Barbuda</option>
-          <option value="AR">Argentina</option>
-          <option value="AM">Armenia</option>
-          <option value="AW">Aruba</option>
-          <option value="AC">Ascension Island</option>
-          <option value="AU">Australia</option>
-          <option value="AT">Austria</option>
-          <option value="AZ">Azerbaijan</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Armenia">Armenia</option>
+          <option value="Aruba">Aruba</option>
+          <option value="Ascension Island">Ascension Island</option>
+          <option value="Australia">Australia</option>
+          <option value="Austria">Austria</option>
+          <option value="Azerbaijan">Azerbaijan</option>
           <option value="BS">Bahamas</option>
           <option value="BH">Bahrain</option>
           <option value="BD">Bangladesh</option>
@@ -563,7 +519,7 @@
           <option value="VU">Vanuatu</option>
           <option value="VA">Vatican City</option>
           <option value="VE">Venezuela</option>
-          <option value="VN">Vietnam</option>
+          <option value="Vietnam">Vietnam</option>
           <option value="WF">Wallis & Futuna</option>
           <option value="EH">Western Sahara</option>
           <option value="YE">Yemen</option>
@@ -580,26 +536,22 @@
     </div>
     <div class="section3" v-if="activePhase == 3">
       <h3>Enter the items you wish to bill</h3>
-      <section>
+      <section style="position: relative;">
+        <span @click="openPopup(2)" class="add" style="top: 10px">+</span>
         <span>STEP 3 OF 3</span>
         <div id="xmas-popup" class="popup" href="#">
-	            <div class="popup-content">
-	                <input type="text" name="item" placeholder="Item">
-                  <input type="text" name="email" placeholder="Description">
-                  <button style="margin-left: 90%;" type="button">Add</button>
-	                <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i class="fa-solid fa-xmark"></i></a>
-	            </div>
-	        </div>
-        <Item
-          v-for="itemBill in itemBills"
-          :key="itemBill"
-          :itemBillProps="itemBill"
-          @delete-item="deleteItem"
-        />
+          <div class="popup-content">
+            <input type="text" name="name" placeholder="Item" v-model="productData.title">
+            <input type="text" name="description" placeholder="Description" v-model="productData.body_html">
+            <button @click="addProduct" onclick="this.parentElement.parentElement.style.display='none';"
+              style="margin-left: 90%;" type="button">Add</button>
+            <a onclick="this.parentElement.parentElement.style.display='none';" class="close"><i
+                class="fa-solid fa-xmark"></i></a>
+          </div>
+        </div>
+        <Item v-for="itemBill in itemBills" :key="itemBill" :itemBillProps="itemBill" @delete-item="deleteItem" />
         <div class="addItem">
-          <a @click="additem"
-            ><i class="fa-sharp fa-solid fa-tag fa-beat"></i>Add a item</a
-          >
+          <a @click="additem"><i class="fa-sharp fa-solid fa-tag fa-beat"></i>Add a item</a>
         </div>
         <!-- <p>{{ subtotal }}</p> -->
         <div class="button">
@@ -609,11 +561,12 @@
       </section>
     </div>
   </form>
-  <invoice-template :customerProps="customer" :companyProps="company" :itemBillProps="itemBills" v-if="activePhase == 4"/>
+  <invoice-template :customerProps="customer" :companyProps="company" :itemBillProps="itemBills"
+    v-if="activePhase == 4" />
 </template>
 
 <script>
-import { computed, ref } from "vue";
+import { ref, watch } from "vue";
 import Item from "./Item.vue";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -630,11 +583,12 @@ export default {
         Description: "",
         Quantity: 0,
         Price: 0,
-        amount(){
-          return this.Quantity*this.Price;
+        amount() {
+          return this.Quantity * this.Price;
         }
       },
     ]);
+    const showPopup = ref([false, false]);
     const customer = ref({ // Customer data phase 2
       name: "",
       email: "",
@@ -644,7 +598,7 @@ export default {
       city: "",
       zipCode: "",
       country: "",
-      state:"",
+      state: "",
     });
     const company = ref({ // Company data phase 1
       name: "",
@@ -653,23 +607,78 @@ export default {
       country: "",
       state: "",
     });
+    const customerData = ref({ //addCustomer
+      name: "",
+      shop: "gumbee-14526.myshopify.com",
+      email: "",
+      country: "",
+      city: "",
+    })
+    const addCustomer = () => {
+      console.log(customerData.value);
+      fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/customers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          'ngrok-skip-browser-warning':"any",
+          // 'Access-Control-Allow-Origin':'*',
+          // 'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
+        },
+        body: JSON.stringify(customerData.value),
+      }).then((response) => response.text())
+        .then((text) => window.alert(text))
+        .catch((error) => window.alert(error));
+      customerData.city = "";
+      customerData.country = "";
+      customerData.email = "";
+      customerData.name = "";
+    }
+    const productData = ref({ // addProduct
+      title: "",
+      shop: "gumbee-14526.myshopify.com",
+      body_html: "",
+    })
+    const addProduct = () => {
+      console.log(productData);
+      fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(productData.value),
+      }).then((response) => response.text())
+        .then((text) => window.alert(text))
+        .catch((error) => window.alert(error));
+      productData.name = "";
+      productData.description = "";
+    }
     const customerFromShopify = ref([]); // list customer lay tu shopify
     const getAllCustomers = async () => { // get customer datalist step 2
-      const resp = await axios.get(`http://localhost:4000/user/customers`);
-      customerFromShopify.value = resp.data.data;
-      console.log(resp.data);
+      const resp = await axios.get(`https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/customers?id=gumbee-14526`,{headers:{'ngrok-skip-browser-warning':"any"}});
+      customerFromShopify.value = resp.data;
+      console.log(customerFromShopify.value)
     };
-    getAllCustomers();
+    const fillInput = () => {
+      // console.log(customerFromShopify.value);
+      const choosedData = customerFromShopify.value.filter((Customer) => Customer.email === document.querySelector('.customerEmail').value);
+      console.log(choosedData[0]);
+      customer.value.country = choosedData[0].country;
+      customer.value.city = choosedData[0].city;
+      customer.value.name = choosedData[0].name; 
+  };
     // const addButton = document.querySelectorAll('.add')[0]; // Click + hien ra pop up
     // addButton.forEach((btn,index) => {
-      // addButton.addEventListener('click', () => {
-      //   console.log("adu");
-        // const popUp = document.getElementsByClassName('popup')[index];
-        // popup.style.display = "block";
-      // })
+    // addButton.addEventListener('click', () => {
+    //   console.log("adu");
+    // const popUp = document.getElementsByClassName('popup')[index];
+    // popup.style.display = "block";
+    // })
     // });
     const openPopup = (step) => {
-      document.getElementsByClassName('popup')[step-2].style.display = "block";
+      // console.log(document.getElementsByClassName('popup'));
+      document.getElementsByClassName('popup')[step - 2].style.display = "block";
     }
     const deleteItem = (id) => { // Xoa item step 3
       itemBills.value = itemBills.value.filter(
@@ -683,8 +692,8 @@ export default {
         Description: "",
         Quantity: "",
         Price: "",
-        amount(){
-          return this.Quantity*this.Price;
+        amount() {
+          return this.Quantity * this.Price;
         },
       });
     };
@@ -695,12 +704,28 @@ export default {
     //   });
     //   return subTotal;
     // })
+    fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/receiveData?id=gumbee-14526", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          'ngrok-skip-browser-warning':"any"
+        },
+      }).then((response) => response.text())
+        .then((text) => {console.log(text)})
+        .catch((error) => console.error(error));
+    getAllCustomers();
     const goToStep = (step) => { // Chuyen? den step -> ?
       activePhase.value = step;
     };
     // const sendData = async () => {
     //   const res = await axios.post("", data);
     // };
+    watch(activePhase, (newVal, oldVal) => {
+      if (newVal == 4)
+        document.body.classList.add('phase-four-body');
+      else
+        document.body.classList.remove('phase-four-body');
+    })
     return {
       itemBills,
       deleteItem,
@@ -710,55 +735,75 @@ export default {
       customer,
       company,
       customerFromShopify,
-      openPopup
+      openPopup,
+      showPopup,
+      customerData,
+      productData,
+      addCustomer,
+      addProduct,
+      fillInput
     };
   },
 }
 </script>
 
 <style scoped>
+:global(body) {
+  background-image: url('https://wallpaperaccess.com/full/7270362.gif');
+  background-repeat: no-repeat;
+  background-position-x: center;
+}
+
 .add {
   position: absolute;
   top: 35%;
   right: 10px;
 }
-.add:hover{
+
+.add:hover {
   cursor: pointer;
   user-select: none;
 }
+
 .close {
- position: absolute;
- top: 5px;
- right: 5px;
- border-radius: 50%;
- /* background: #222; */
- /* border: 3px solid #fff; */
- color: #fff;
- text-decoration: none;
- line-height: 0;
- padding: 9px 0 11px;
- width: 20px;
- text-align: center;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border-radius: 50%;
+  /* background: #222; */
+  /* border: 3px solid #fff; */
+  color: #fff;
+  text-decoration: none;
+  line-height: 0;
+  padding: 9px 0 11px;
+  width: 20px;
+  text-align: center;
 }
-#xmas-popup .popup-content{
- width: 600px;
- /* height: 600px; */
- background: #bbb;
- margin: 100px auto;
- position: relative;
- border: 5px solid #fff;
- padding: 30px;
+[list]::-webkit-calendar-picker-indicator {
+  display: none; 
+  opacity: 0;
 }
+#xmas-popup .popup-content {
+  width: 600px;
+  /* height: 600px; */
+  background: #bbb;
+  margin: 100px auto;
+  position: relative;
+  border: 5px solid #fff;
+  padding: 30px;
+}
+
 .popup {
- position: fixed;
- width: 100%;
- height: 100%;
- top: 0;
- left: 0;
- background: rgba(0,0,0,0.6);
- display: none;
- z-index: 1;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  z-index: 1;
 }
+
 input {
   width: 100%;
   background: #fff;
@@ -770,6 +815,7 @@ input {
   padding-left: 8px;
   margin: 5px;
 }
+
 section {
   width: 60%;
   min-width: 250px;
@@ -778,6 +824,7 @@ section {
   background-color: #fff;
   padding: 20px 40px;
 }
+
 select {
   display: inline-block;
   height: 48px;
@@ -791,6 +838,7 @@ select {
   border: 1px solid #e6e6e6;
   background: #fff;
 }
+
 h3 {
   text-align: center;
   color: #fff;
@@ -800,16 +848,19 @@ h3 {
   font-weight: normal;
   background-color: #4ea4dc;
 }
+
 span {
   color: #6b7177;
   font-weight: bold;
 }
+
 .button {
   display: flex;
   justify-content: space-between;
   align-self: center;
   margin-top: 15px;
 }
+
 button {
   border: none;
   cursor: pointer;
@@ -817,9 +868,9 @@ button {
   color: #fff;
   padding: 10px 15px;
 }
+
 .fa-sharp {
   font-size: 22px;
   color: #4ea4dc;
   padding-right: 7px;
-}
-</style>
+}</style>
