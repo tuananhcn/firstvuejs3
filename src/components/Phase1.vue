@@ -566,11 +566,12 @@
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref, watch, inject } from "vue";
 import Item from "./Item.vue";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import InvoiceTemplate from './InvoiceTemplate.vue';
+
 export default {
   name: "Phase1",
   components: { Item, InvoiceTemplate },
@@ -588,6 +589,7 @@ export default {
         }
       },
     ]);
+    const SeverURL = inject('SeverURL')
     const showPopup = ref([false, false]);
     const customer = ref({ // Customer data phase 2
       name: "",
@@ -609,19 +611,20 @@ export default {
     });
     const customerData = ref({ //addCustomer
       name: "",
-      shop: "gumbee-14526.myshopify.com",
+      shop: "",
       email: "",
       country: "",
       city: "",
     })
     const addCustomer = () => {
       console.log(customerData.value);
-      fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/customers", {
+      fetch(`${SeverURL}/user/customers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
           'ngrok-skip-browser-warning':"any",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
           // 'Access-Control-Allow-Origin':'*',
           // 'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
         },
@@ -636,16 +639,17 @@ export default {
     }
     const productData = ref({ // addProduct
       title: "",
-      shop: "gumbee-14526.myshopify.com",
+      shop: "",
       body_html: "",
     })
     const addProduct = () => {
       console.log(productData);
-      fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/products", {
+      fetch(`${SeverURL}/user/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(productData.value),
       }).then((response) => response.text())
@@ -656,7 +660,7 @@ export default {
     }
     const customerFromShopify = ref([]); // list customer lay tu shopify
     const getAllCustomers = async () => { // get customer datalist step 2
-      const resp = await axios.get(`https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/customers?id=gumbee-14526`,{headers:{'ngrok-skip-browser-warning':"any"}});
+      const resp = await axios.get(`${SeverURL}/user/customers`,{headers:{'ngrok-skip-browser-warning':"any", 'Authorization': `Bearer ${localStorage.getItem('token')}`}});
       customerFromShopify.value = resp.data;
       console.log(customerFromShopify.value)
     };
@@ -704,15 +708,16 @@ export default {
     //   });
     //   return subTotal;
     // })
-    fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/receiveData?id=gumbee-14526", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          'ngrok-skip-browser-warning':"any"
-        },
-      }).then((response) => response.text())
-        .then((text) => {console.log(text)})
-        .catch((error) => console.error(error));
+    // fetch(`${SeverURL}/user/receiveData`, {
+    //     method: "GET",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       'ngrok-skip-browser-warning':"any",
+    //       "Authorization": `Bearer ${localStorage.getItem('token')}`
+    //     },
+    //   }).then((response) => response.text())
+    //     .then((text) => {console.log(text)})
+    //     .catch((error) => console.error(error));
     getAllCustomers();
     const goToStep = (step) => { // Chuyen? den step -> ?
       activePhase.value = step;

@@ -1,5 +1,12 @@
 <script setup>
-  import Phase1 from './components/Phase1.vue'
+  import { onBeforeMount, onMounted } from 'vue';
+import Phase1 from './components/Phase1.vue'
+  onBeforeMount(() => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const token = urlParams.get('token')
+      console.log(token)
+      localStorage.setItem('token', token)
+  })
 </script>
 
 <template>

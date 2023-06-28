@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, inject } from "vue";
 import MessagePopup from "./messagePopup.vue";
 export default {
   name: "invoiceTemplate",
@@ -159,6 +159,7 @@ export default {
       });
       return subTotal;
     });
+    const SeverURL = inject('SeverURL')
     const settingFeature = ref({
       paymentDate: "",
       soTienThanhToan: 0,
@@ -212,14 +213,15 @@ export default {
           subToTal: subtotal.value,
           tax: tax.value,
           paymentDate: settingFeature.value.paymentDate,
-          imgURL: "https://ccd6-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/src/assets/logo.png"
+          imgURL: `${SeverURL}/src/assets/logo.png`
         }
       };
-      fetch("https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/invoices/send", {
+      fetch(`${SeverURL}/invoices/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'ngrok-skip-browser-warning':"any"
+          'ngrok-skip-browser-warning':"any",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(invoiceData),
       }).then((response) => response.text())

@@ -59,12 +59,13 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import axios from "axios";
 export default {
   name: "Item",
   props: ["itemBillProps"],
   setup(props, context) {
+    const SeverURL = inject('SeverURL')
     // const amount = ref({
     //     Quantity: '',
     //     Price: ''
@@ -73,7 +74,7 @@ export default {
     // const Quantity = ref(0); 
     const products = ref([])
     const getProducts = async() =>{
-        const res = await axios.get(`https://2ee1-2402-800-61b3-33a6-15dd-aa54-9f65-7f10.ngrok-free.app/user/products?id=gumbee-14526`,{headers:{'ngrok-skip-browser-warning':"any"}});
+        const res = await axios.get(`${SeverURL}/user/products`,{headers:{'ngrok-skip-browser-warning':"any","Authorization": `Bearer ${localStorage.getItem('token')}`}});
         products.value = res.data;
         console.log(products.value);
     }
